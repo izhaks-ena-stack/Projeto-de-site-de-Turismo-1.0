@@ -323,7 +323,7 @@ function marcarVisitado(id, botao) {
     const novoArray = visitados.filter(item => item !== id);
     localStorage.setItem("visitados", JSON.stringify(novoArray));
 
-    botao.innerHTML = "❌ Não visitado";
+    botao.innerHTML = "❌ Ainda não visitado";
     botao.classList.remove("btn-success");
     botao.classList.add("btn-outline-primary");
   }
