@@ -224,6 +224,10 @@ function montarCards() {
   dados.cidades.forEach(cidade => {
     const col = document.createElement("div");
     col.className = "col-md-4 mb-4";
+    const visitados =
+  JSON.parse(localStorage.getItem("visitados")) || [];
+
+const visitado = visitados.includes(cidade.id);
     col.innerHTML = `
       <div class="card h-100 shadow-sm">
         <img src="${cidade.imagem_principal}" class="card-img-top" alt="${cidade.nome}" style="height:200px; object-fit:cover;">
@@ -232,8 +236,16 @@ function montarCards() {
           <p class="card-text">${cidade.descricao}</p>
         </div>
         <div class="card-footer">
-          <a href="detalhe.html?id=${cidade.id}" class="btn btn-success w-100">Ver detalhes</a>
-        </div>
+  <a href="detalhe.html?id=${cidade.id}" class="btn btn-success w-100 mb-2">
+    Ver detalhes
+  </a>
+
+  <button
+    class="btn btn-outline-primary w-100"
+    onclick="marcarVisitado(${cidade.id}, this)">
+    ❌ Não visitado
+  </button>
+</div>
       </div>
     `;
     container.appendChild(col);
@@ -303,7 +315,27 @@ function montarDetalhe() {
 }
 
 // Inicialização
+function marcarVisitado(id, botao) {
+  const visitados =
+    JSON.parse(localStorage.getItem("visitados")) || [];
 
+  if (visitados.includes(id)) {
+    const novoArray = visitados.filter(item => item !== id);
+    localStorage.setItem("visitados", JSON.stringify(novoArray));
+
+    botao.innerHTML = "❌ Não visitado";
+    botao.classList.remove("btn-success");
+    botao.classList.add("btn-outline-primary");
+  }
+  else {
+    visitados.push(id);
+    localStorage.setItem("visitados", JSON.stringify(visitados));
+
+    botao.innerHTML = "✅ Visitado";
+    botao.classList.remove("btn-outline-primary");
+    botao.classList.add("btn-success");
+  }
+}
 document.addEventListener("DOMContentLoaded", function () {
   montarCarrossel();
   montarCards();
