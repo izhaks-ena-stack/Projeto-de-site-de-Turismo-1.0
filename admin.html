@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Explora Minas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    :root { --green: #198754; --green-dark: #146c43; }
+    .sidebar {
+      width: 220px; min-height: 100vh;
+      background: linear-gradient(180deg, #0d3d22 0%, #1a6b3a 100%);
+      position: fixed; top: 0; left: 0; z-index: 100;
+    }
+    .sidebar-logo { padding: 24px 16px 12px; }
+    .sidebar-logo img { width: 48px; }
+    .sidebar-nav a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 20px; color: rgba(255,255,255,.75);
+      text-decoration: none; font-size: .9rem; transition: all .15s;
+    }
+    .sidebar-nav a:hover, .sidebar-nav a.active {
+      background: rgba(255,255,255,.12); color: #fff;
+    }
+    .sidebar-nav a .icon { font-size: 1.1rem; width: 22px; text-align: center; }
+    .main-content { margin-left: 220px; padding: 32px; background: #f4f6f4; min-height: 100vh; }
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+    .stat-card {
+      background: #fff; border-radius: 12px; padding: 20px 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07); border-left: 4px solid var(--green);
+    }
+    .stat-num { font-size: 2rem; font-weight: 700; color: var(--green); line-height: 1; }
+    .table th { background: #f0f7f0; color: #2d6a4f; font-size: .82rem; text-transform: uppercase; letter-spacing: .5px; }
+    .badge-admin { background: #fff3cd; color: #856404; }
+    .badge-user  { background: #d1e7dd; color: #0a3622; }
+    .btn-green { background: var(--green); color: #fff; border: none; }
+    .btn-green:hover { background: var(--green-dark); color: #fff; }
+    .form-control:focus, .form-select:focus { border-color: var(--green); box-shadow: 0 0 0 .2rem rgba(25,135,84,.25); }
+    .card-cidade {
+      background: #fff; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07); transition: transform .2s;
+    }
+    .card-cidade:hover { transform: translateY(-3px); }
+    .card-cidade img { height: 160px; object-fit: cover; width: 100%; }
+    .modal-header { background: var(--green); color: #fff; }
+    .modal-header .btn-close { filter: invert(1); }
+    .atracoes-list .atracao-item {
+      background: #f8f9fa; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px;
+    }
+    #user-greeting { color: rgba(255,255,255,.6); font-size: .8rem; padding: 4px 20px 16px; }
+    .logout-btn {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 20px; color: rgba(255,255,255,.6);
+      text-decoration: none; font-size: .9rem; cursor: pointer;
+      border: none; background: none; width: 100%; transition: all .15s;
+    }
+    .logout-btn:hover { color: #ff8a8a; }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <img src="assets/img/logo.png" alt="Logo">
+    <div class="text-white fw-bold mt-1" style="font-size:.95rem;">Explora Minas</div>
+    <div class="text-white-50" style="font-size:.75rem;">Painel Admin</div>
+  </div>
+  <div id="user-greeting"></div>
+  <ul class="sidebar-nav list-unstyled mb-0">
+    <li><a href="#" class="active" onclick="trocarSecao('dashboard', this)"><span class="icon">📊</span> Dashboard</a></li>
+    <li><a href="#" onclick="trocarSecao('cidades', this)"><span class="icon">🏙️</span> Cidades</a></li>
+    <li><a href="#" onclick="trocarSecao('usuarios', this)"><span class="icon">👥</span> Usuários</a></li>
+    <li><a href="index.html"><span class="icon">🌐</span> Ver site</a></li>
+  </ul>
+  <div style="position:absolute; bottom:20px; width:100%;">
+    <button class="logout-btn" onclick="Auth.logout()"><span class="icon">🚪</span> Sair</button>
+  </div>
+</nav>
+
+<!-- Conteúdo principal -->
+<main class="main-content">
+
+  <!-- ===== DASHBOARD ===== -->
+  <section id="sec-dashboard" class="page-section active">
+    <h4 class="fw-bold mb-1">Dashboard</h4>
+    <p class="text-muted mb-4">Visão geral do sistema</p>
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6 col-lg-3">
+        <div class="stat-card">
+          <div class="text-muted small mb-1">Cidades</div>
+          <div class="stat-num" id="stat-cidades">-</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="stat-card">
+          <div class="text-muted small mb-1">Usuários</div>
+          <div class="stat-num" id="stat-usuarios">-</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="stat-card">
+          <div class="text-muted small mb-1">Destaques</div>
+          <div class="stat-num" id="stat-destaques">-</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="stat-card">
+          <div class="text-muted small mb-1">Total de visitas marcadas</div>
+          <div class="stat-num" id="stat-visitas">-</div>
+        </div>
+      </div>
+    </div>
+
+    <h6 class="fw-bold mb-3">Cidades mais visitadas</h6>
+    <div class="bg-white rounded-3 shadow-sm p-3" id="ranking-visitas">
+      <p class="text-muted small">Carregando…</p>
+    </div>
+  </section>
+
+  <!-- ===== CIDADES ===== -->
+  <section id="sec-cidades" class="page-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4 class="fw-bold mb-0">Cidades</h4>
+        <p class="text-muted small mb-0">Gerencie os destinos do banco de dados</p>
+      </div>
+      <button class="btn btn-green px-3" onclick="abrirModalCidade(null)">+ Nova cidade</button>
+    </div>
+    <div class="row g-3" id="grid-cidades"></div>
+  </section>
+
+  <!-- ===== USUÁRIOS ===== -->
+  <section id="sec-usuarios" class="page-section">
+    <h4 class="fw-bold mb-1">Usuários</h4>
+    <p class="text-muted mb-4 small">Gerencie perfis e permissões</p>
+    <div class="bg-white rounded-3 shadow-sm p-0 overflow-hidden">
+      <table class="table table-hover mb-0" id="tabela-usuarios">
+        <thead>
+          <tr>
+            <th class="ps-4">Nome</th>
+            <th>E-mail</th>
+            <th>Perfil</th>
+            <th>Visitados</th>
+            <th>Cadastro</th>
+            <th class="pe-4">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-usuarios"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== MODAL CIDADE ===== -->
+<div class="modal fade" id="modalCidade" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalCidadeTitulo">Nova Cidade</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="cidade-id">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Nome *</label>
+            <input type="text" id="cidade-nome" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Estado</label>
+            <input type="text" id="cidade-estado" class="form-control" value="Minas Gerais">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Descrição curta *</label>
+            <input type="text" id="cidade-descricao" class="form-control" placeholder="Frase de destaque para o card" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Conteúdo completo</label>
+            <textarea id="cidade-conteudo" class="form-control" rows="3" placeholder="Texto da página de detalhes"></textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Distância de BH</label>
+            <input type="text" id="cidade-distancia" class="form-control" placeholder="Ex: 100km de BH">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">População</label>
+            <input type="text" id="cidade-populacao" class="form-control" placeholder="Ex: ~47.000 habitantes">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">URL da imagem principal *</label>
+            <input type="url" id="cidade-imagem" class="form-control" placeholder="https://" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Link do Google Maps</label>
+            <input type="url" id="cidade-mapa" class="form-control" placeholder="https://maps.google.com/?q=...">
+          </div>
+          <div class="col-md-4">
+            <div class="form-check form-switch mt-4">
+              <input class="form-check-input" type="checkbox" id="cidade-destaque">
+              <label class="form-check-label" for="cidade-destaque">Exibir no carrossel</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Atrações -->
+        <hr class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold mb-0">📸 Atrações</h6>
+          <button class="btn btn-sm btn-outline-success" onclick="adicionarAtracaoForm()">+ Adicionar atração</button>
+        </div>
+        <div id="atracoes-list" class="atracoes-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-green px-4" onclick="salvarCidade()">Salvar cidade</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+// ── Proteção admin ──────────────────────────────────────────────────────
+if (!Auth.exigirAdmin()) { throw new Error('Acesso negado'); }
+const sessao = Auth.getSessao();
+document.getElementById('user-greeting').textContent = '👤 ' + sessao.nome;
+
+// ── Navegação ───────────────────────────────────────────────────────────
+function trocarSecao(sec, link) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('sec-' + sec).classList.add('active');
+  if (link) link.classList.add('active');
+  if (sec === 'dashboard') renderDashboard();
+  if (sec === 'cidades') renderCidades();
+  if (sec === 'usuarios') renderUsuarios();
+}
+
+// ── Dashboard ───────────────────────────────────────────────────────────
+function renderDashboard() {
+  const cidades = Auth.getCidades();
+  const usuarios = Auth.listarUsuarios();
+  document.getElementById('stat-cidades').textContent = cidades.length;
+  document.getElementById('stat-usuarios').textContent = usuarios.length;
+  document.getElementById('stat-destaques').textContent = cidades.filter(c => c.destaque).length;
+  const totalVisitas = usuarios.reduce((acc, u) => acc + (u.visitados?.length || 0), 0);
+  document.getElementById('stat-visitas').textContent = totalVisitas;
+
+  // Ranking
+  const contagem = {};
+  cidades.forEach(c => { contagem[c.id] = 0; });
+  usuarios.forEach(u => (u.visitados || []).forEach(id => { if (contagem[id] !== undefined) contagem[id]++; }));
+  const sorted = cidades.map(c => ({ nome: c.nome, count: contagem[c.id] || 0 }))
+    .sort((a, b) => b.count - a.count).slice(0, 5);
+
+  const el = document.getElementById('ranking-visitas');
+  if (sorted.every(s => s.count === 0)) {
+    el.innerHTML = '<p class="text-muted small mb-0">Nenhuma visita marcada ainda.</p>';
+    return;
+  }
+  const max = sorted[0].count || 1;
+  el.innerHTML = sorted.map(s => `
+    <div class="d-flex align-items-center gap-3 mb-2">
+      <div style="width:140px; font-size:.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${s.nome}</div>
+      <div class="flex-grow-1">
+        <div class="progress" style="height:10px;">
+          <div class="progress-bar bg-success" style="width:${(s.count/max)*100}%"></div>
+        </div>
+      </div>
+      <div style="width:30px; text-align:right; font-size:.85rem; font-weight:600;">${s.count}</div>
+    </div>
+  `).join('');
+}
+
+// ── Cidades ─────────────────────────────────────────────────────────────
+function renderCidades() {
+  const lista = Auth.getCidades();
+  const grid = document.getElementById('grid-cidades');
+  grid.innerHTML = lista.map(c => `
+    <div class="col-sm-6 col-lg-4">
+      <div class="card-cidade">
+        <img src="${c.imagem_principal}" alt="${c.nome}"
+          onerror="this.src='https://via.placeholder.com/400x160?text=Sem+imagem'">
+        <div class="p-3">
+          <div class="d-flex justify-content-between align-items-start">
+            <h6 class="fw-bold mb-1">${c.nome}</h6>
+            ${c.destaque ? '<span class="badge bg-warning text-dark" style="font-size:.7rem;">⭐ Destaque</span>' : ''}
+          </div>
+          <p class="text-muted" style="font-size:.8rem; line-height:1.4;">${c.descricao}</p>
+          <div class="d-flex gap-2 mt-2">
+            <button class="btn btn-sm btn-outline-success flex-fill" onclick="abrirModalCidade(${c.id})">✏️ Editar</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="excluirCidade(${c.id})">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Modal cidade
+const modalCidadeEl = new bootstrap.Modal(document.getElementById('modalCidade'));
+let atracaoCounter = 0;
+
+function abrirModalCidade(id) {
+  document.getElementById('atracoes-list').innerHTML = '';
+  atracaoCounter = 0;
+
+  if (id === null) {
+    document.getElementById('modalCidadeTitulo').textContent = 'Nova Cidade';
+    document.getElementById('cidade-id').value = '';
+    ['nome','estado','descricao','conteudo','distancia','populacao','imagem','mapa']
+      .forEach(f => document.getElementById('cidade-' + f).value = f === 'estado' ? 'Minas Gerais' : '');
+    document.getElementById('cidade-destaque').checked = false;
+  } else {
+    const c = Auth.getCidades().find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('modalCidadeTitulo').textContent = 'Editar: ' + c.nome;
+    document.getElementById('cidade-id').value = c.id;
+    document.getElementById('cidade-nome').value = c.nome || '';
+    document.getElementById('cidade-estado').value = c.estado || 'Minas Gerais';
+    document.getElementById('cidade-descricao').value = c.descricao || '';
+    document.getElementById('cidade-conteudo').value = c.conteudo || '';
+    document.getElementById('cidade-distancia').value = c.distancia || '';
+    document.getElementById('cidade-populacao').value = c.populacao || '';
+    document.getElementById('cidade-imagem').value = c.imagem_principal || '';
+    document.getElementById('cidade-mapa').value = c.mapa || '';
+    document.getElementById('cidade-destaque').checked = !!c.destaque;
+    (c.atracoes || []).forEach(a => adicionarAtracaoForm(a));
+  }
+  modalCidadeEl.show();
+}
+
+function adicionarAtracaoForm(atracao = {}) {
+  const i = atracaoCounter++;
+  const div = document.createElement('div');
+  div.className = 'atracao-item';
+  div.dataset.idx = i;
+  div.innerHTML = `
+    <div class="d-flex justify-content-between mb-2">
+      <span class="fw-semibold small text-success">Atração ${i + 1}</span>
+      <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="this.closest('.atracao-item').remove()">Remover</button>
+    </div>
+    <div class="row g-2">
+      <div class="col-md-6">
+        <input type="text" class="form-control form-control-sm at-nome" placeholder="Nome da atração" value="${atracao.nome || ''}">
+      </div>
+      <div class="col-md-6">
+        <input type="url" class="form-control form-control-sm at-imagem" placeholder="URL da foto" value="${atracao.imagem || ''}">
+      </div>
+      <div class="col-12">
+        <input type="text" class="form-control form-control-sm at-desc" placeholder="Descrição breve" value="${atracao.descricao || ''}">
+      </div>
+    </div>
+  `;
+  document.getElementById('atracoes-list').appendChild(div);
+}
+
+function salvarCidade() {
+  const nome = document.getElementById('cidade-nome').value.trim();
+  const descricao = document.getElementById('cidade-descricao').value.trim();
+  const imagem = document.getElementById('cidade-imagem').value.trim();
+  if (!nome || !descricao || !imagem) {
+    alert('Preencha os campos obrigatórios: Nome, Descrição e Imagem.');
+    return;
+  }
+
+  const atracoes = [...document.querySelectorAll('#atracoes-list .atracao-item')].map(el => ({
+    id: Date.now(),
+    nome: el.querySelector('.at-nome').value.trim(),
+    descricao: el.querySelector('.at-desc').value.trim(),
+    imagem: el.querySelector('.at-imagem').value.trim()
+  })).filter(a => a.nome);
+
+  const cidade = {
+    nome,
+    estado: document.getElementById('cidade-estado').value.trim() || 'Minas Gerais',
+    descricao,
+    conteudo: document.getElementById('cidade-conteudo').value.trim(),
+    distancia: document.getElementById('cidade-distancia').value.trim(),
+    populacao: document.getElementById('cidade-populacao').value.trim(),
+    imagem_principal: imagem,
+    mapa: document.getElementById('cidade-mapa').value.trim(),
+    destaque: document.getElementById('cidade-destaque').checked,
+    atracoes
+  };
+
+  const idVal = document.getElementById('cidade-id').value;
+  if (idVal) {
+    cidade.id = parseInt(idVal);
+    Auth.atualizarCidade(cidade);
+  } else {
+    Auth.adicionarCidade(cidade);
+  }
+  modalCidadeEl.hide();
+  renderCidades();
+  renderDashboard();
+}
+
+function excluirCidade(id) {
+  if (!confirm('Remover esta cidade do banco de dados?')) return;
+  Auth.removerCidade(id);
+  renderCidades();
+  renderDashboard();
+}
+
+// ── Usuários ─────────────────────────────────────────────────────────────
+function renderUsuarios() {
+  const lista = Auth.listarUsuarios();
+  const tbody = document.getElementById('tbody-usuarios');
+  tbody.innerHTML = lista.map(u => {
+    const data = u.criadoEm ? new Date(u.criadoEm).toLocaleDateString('pt-BR') : '-';
+    const badgeClass = u.perfil === 'admin' ? 'badge-admin' : 'badge-user';
+    const label = u.perfil === 'admin' ? '👑 Admin' : '👤 Usuário';
+    const isAdmin = u.id === 'admin';
+    return `
+      <tr>
+        <td class="ps-4 fw-semibold">${u.nome}</td>
+        <td class="text-muted">${u.email}</td>
+        <td>
+          <span class="perfil-badge ${badgeClass}">${label}</span>
+        </td>
+        <td>${(u.visitados || []).length}</td>
+        <td class="text-muted small">${data}</td>
+        <td class="pe-4">
+          ${isAdmin ? '<span class="text-muted small">–</span>' : `
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm btn-outline-secondary" onclick="togglePerfil('${u.id}', '${u.perfil}')">
+                ${u.perfil === 'admin' ? '⬇ Revogar admin' : '⬆ Tornar admin'}
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="removerUser('${u.id}')">🗑️</button>
+            </div>
+          `}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function togglePerfil(id, perfilAtual) {
+  const novo = perfilAtual === 'admin' ? 'usuario' : 'admin';
+  Auth.alterarPerfil(id, novo);
+  renderUsuarios();
+}
+
+function removerUser(id) {
+  if (!confirm('Remover este usuário permanentemente?')) return;
+  const r = Auth.removerUsuario(id);
+  if (!r.ok) alert(r.erro);
+  renderUsuarios();
+  renderDashboard();
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────
+renderDashboard();
+</script>
+</body>
+</html>
