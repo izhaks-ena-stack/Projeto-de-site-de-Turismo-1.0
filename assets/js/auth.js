@@ -1,15 +1,10 @@
-/**
- * Auth.js – Sistema de autenticação do Explora Minas
- * Usuários persistidos no localStorage; sessão no sessionStorage (requisito TP2).
- */
-
 const Auth = (() => {
 
   const USUARIOS_KEY = 'exploraMinas_usuarios';
   const SESSAO_KEY   = 'exploraMinas_sessao';
   const CIDADES_KEY  = 'exploraMinas_cidades';
 
-  // ── Admin padrão ──────────────────────────────────────────────────────
+  //  Admin padrão 
   function init() {
     let usuarios = _getUsuarios();
     if (!usuarios.find(u => u.email === 'admin@explora.mg')) {
@@ -28,12 +23,12 @@ const Auth = (() => {
     }
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────
+  
   function _getUsuarios() { return JSON.parse(localStorage.getItem(USUARIOS_KEY)) || []; }
   function _salvarUsuarios(lista) { localStorage.setItem(USUARIOS_KEY, JSON.stringify(lista)); }
   function _gerarId() { return 'u_' + Math.random().toString(36).substr(2, 9); }
 
-  // ── Cadastro ──────────────────────────────────────────────────────────
+  // Cadastro 
   function cadastrar(nome, email, senha) {
     const usuarios = _getUsuarios();
     if (usuarios.find(u => u.email === email))
@@ -50,7 +45,7 @@ const Auth = (() => {
     return { ok: true };
   }
 
-  // ── Login → sessão no sessionStorage ─────────────────────────────────
+  // login no sessão no sessionStorage 
   function login(email, senha) {
     const usuario = _getUsuarios().find(u => u.email === email && u.senha === senha);
     if (!usuario) return { ok: false, erro: 'E-mail ou senha incorretos.' };
@@ -59,18 +54,18 @@ const Auth = (() => {
     return { ok: true, perfil: usuario.perfil };
   }
 
-  // ── Logout ────────────────────────────────────────────────────────────
+  // logout
   function logout() {
     sessionStorage.removeItem(SESSAO_KEY);
     window.location.href = 'index.html';
   }
 
-  // ── Sessão ────────────────────────────────────────────────────────────
+  // sessão
   function getSessao() {
     return JSON.parse(sessionStorage.getItem(SESSAO_KEY));
   }
 
-  // ── Proteção ─────────────────────────────────────────────────────────
+  // protecão
   function exigirLogin(redir = 'login.html') {
     if (!getSessao()) { window.location.href = redir; return false; }
     return true;
@@ -81,7 +76,7 @@ const Auth = (() => {
     return true;
   }
 
-  // ── Visitados ─────────────────────────────────────────────────────────
+  // Visitados 
   function getVisitados() {
     const s = getSessao(); if (!s) return [];
     const u = _getUsuarios().find(u => u.id === s.id);
@@ -99,7 +94,7 @@ const Auth = (() => {
     return pos === -1;
   }
 
-  // ── Favoritos ─────────────────────────────────────────────────────────
+  // favor
   function getFavoritos() {
     const s = getSessao(); if (!s) return [];
     const u = _getUsuarios().find(u => u.id === s.id);
@@ -117,7 +112,7 @@ const Auth = (() => {
     return pos === -1;
   }
 
-  // ── Admin: usuários ───────────────────────────────────────────────────
+  // Admin: usuários 
   function listarUsuarios() { return _getUsuarios().map(({ senha, ...u }) => u); }
   function removerUsuario(id) {
     if (id === 'admin') return { ok: false, erro: 'Não é possível remover o admin padrão.' };
@@ -133,7 +128,7 @@ const Auth = (() => {
     return { ok: true };
   }
 
-  // ── Admin: cidades ────────────────────────────────────────────────────
+  // Admin: cidades 
   function getCidades() {
     const salvo = localStorage.getItem(CIDADES_KEY);
     if (salvo) {

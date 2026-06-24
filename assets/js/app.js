@@ -266,7 +266,7 @@ function montarDetalhe() {
     return;
   }
 
-  // Título da página
+  // titulo da página
   document.title = cidade.nome + " - Explora Minas";
 
   // 1: informações gerais
