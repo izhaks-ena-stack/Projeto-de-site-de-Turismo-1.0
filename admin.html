@@ -61,7 +61,7 @@
 </head>
 <body>
 
-<!-- Sidebar -->
+<!-- sidebar -->
 <nav class="sidebar">
   <div class="sidebar-logo">
     <img src="assets/img/logo.png" alt="Logo">
@@ -80,10 +80,10 @@
   </div>
 </nav>
 
-<!-- Conteúdo principal -->
+<!-- principal -->
 <main class="main-content">
 
-  <!-- ===== DASHBOARD ===== -->
+  <!-- dashboard -->
   <section id="sec-dashboard" class="page-section active">
     <h4 class="fw-bold mb-1">Dashboard</h4>
     <p class="text-muted mb-4">Visão geral do sistema</p>
@@ -120,7 +120,7 @@
     </div>
   </section>
 
-  <!-- ===== CIDADES ===== -->
+  <!-- cidades -->
   <section id="sec-cidades" class="page-section">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
@@ -132,7 +132,7 @@
     <div class="row g-3" id="grid-cidades"></div>
   </section>
 
-  <!-- ===== USUÁRIOS ===== -->
+  <!-- usuáris -->
   <section id="sec-usuarios" class="page-section">
     <h4 class="fw-bold mb-1">Usuários</h4>
     <p class="text-muted mb-4 small">Gerencie perfis e permissões</p>
@@ -155,7 +155,7 @@
 
 </main>
 
-<!-- ===== MODAL CIDADE ===== -->
+<!-- md cidade -->
 <div class="modal fade" id="modalCidade" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
@@ -206,7 +206,7 @@
           </div>
         </div>
 
-        <!-- Atrações -->
+        <!-- atracões -->
         <hr class="mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h6 class="fw-bold mb-0">📸 Atrações</h6>
@@ -226,12 +226,12 @@
 <script src="assets/js/app.js"></script>
 <script src="assets/js/auth.js"></script>
 <script>
-// ── Proteção admin ──────────────────────────────────────────────────────
-if (!Auth.exigirAdmin()) { throw new Error('Acesso negado'); }
+//Proteção admin
+if (!Auth.exigirAdmin()) { window.location.href = 'index.html'; }
 const sessao = Auth.getSessao();
 document.getElementById('user-greeting').textContent = '👤 ' + sessao.nome;
 
-// ── Navegação ───────────────────────────────────────────────────────────
+// nav 
 function trocarSecao(sec, link) {
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
@@ -242,7 +242,7 @@ function trocarSecao(sec, link) {
   if (sec === 'usuarios') renderUsuarios();
 }
 
-// ── Dashboard ───────────────────────────────────────────────────────────
+//  dashboard 
 function renderDashboard() {
   const cidades = Auth.getCidades();
   const usuarios = Auth.listarUsuarios();
@@ -278,7 +278,7 @@ function renderDashboard() {
   `).join('');
 }
 
-// ── Cidades ─────────────────────────────────────────────────────────────
+//cidades 
 function renderCidades() {
   const lista = Auth.getCidades();
   const grid = document.getElementById('grid-cidades');
@@ -371,7 +371,7 @@ function salvarCidade() {
   }
 
   const atracoes = [...document.querySelectorAll('#atracoes-list .atracao-item')].map(el => ({
-    id: Date.now(),
+    id: Date.now() + Math.random(),
     nome: el.querySelector('.at-nome').value.trim(),
     descricao: el.querySelector('.at-desc').value.trim(),
     imagem: el.querySelector('.at-imagem').value.trim()
@@ -409,7 +409,7 @@ function excluirCidade(id) {
   renderDashboard();
 }
 
-// ── Usuários ─────────────────────────────────────────────────────────────
+// usuários 
 function renderUsuarios() {
   const lista = Auth.listarUsuarios();
   const tbody = document.getElementById('tbody-usuarios');
@@ -456,7 +456,7 @@ function removerUser(id) {
   renderDashboard();
 }
 
-// ── Init ─────────────────────────────────────────────────────────────────
+//  Iniciar 
 renderDashboard();
 </script>
 </body>

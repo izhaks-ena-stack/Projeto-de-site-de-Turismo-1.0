@@ -33,23 +33,23 @@
 <body class="d-flex align-items-center justify-content-center py-5">
 
 <div class="auth-card p-4 p-md-5">
-  <!-- Logo -->
+  <!-- logo -->
   <div class="text-center mb-4">
     <img src="assets/img/logo.png" alt="Explora Minas" class="auth-logo mb-2">
     <h4 class="fw-bold text-success mb-0">Explora Minas</h4>
     <p class="text-muted small">Sua conta de viajante mineiro</p>
   </div>
 
-  <!-- Tabs -->
+  <!-- tabs -->
   <div class="d-flex gap-2 mb-4 justify-content-center">
     <button class="tab-btn active" id="tab-login" onclick="mostrarAba('login')">Entrar</button>
     <button class="tab-btn" id="tab-cadastro" onclick="mostrarAba('cadastro')">Criar conta</button>
   </div>
 
-  <!-- Alerta -->
+  <!-- alerta -->
   <div id="alerta" class="alert d-none mb-3"></div>
 
-  <!-- FORM LOGIN -->
+  <!-- forms do login -->
   <form id="form-login" onsubmit="fazerLogin(event)">
     <div class="mb-3">
       <label class="form-label fw-semibold">E-mail</label>
@@ -65,7 +65,7 @@
     </p>
   </form>
 
-  <!-- FORM CADASTRO -->
+  <!-- forms cadastro -->
   <form id="form-cadastro" class="d-none" onsubmit="fazerCadastro(event)">
     <div class="mb-3">
       <label class="form-label fw-semibold">Nome</label>
@@ -130,5 +130,6 @@ function fazerCadastro(e) {
   }
 }
 </script>
+
 </body>
 </html>
