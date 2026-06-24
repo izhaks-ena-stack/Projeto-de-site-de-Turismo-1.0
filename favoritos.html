@@ -60,7 +60,7 @@
 <script src="assets/js/auth.js"></script>
 <script>
   // redireciona para login se não autenticado
-  if (!Auth.getSessao()) window.location.href = 'login.html';
+  Auth.exigirLogin();
 
   const sessao = Auth.getSessao();
   if (sessao) {

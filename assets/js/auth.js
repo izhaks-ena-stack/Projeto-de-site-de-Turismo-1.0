@@ -136,7 +136,14 @@ const Auth = (() => {
   // ── Admin: cidades ────────────────────────────────────────────────────
   function getCidades() {
     const salvo = localStorage.getItem(CIDADES_KEY);
-    if (salvo) return JSON.parse(salvo);
+    if (salvo) {
+      try {
+        return JSON.parse(salvo);
+      } catch (error) {
+        console.warn('exploraMinas_cidades inválido, restaurando dados padrão:', error);
+        localStorage.removeItem(CIDADES_KEY);
+      }
+    }
     if (typeof dados !== 'undefined' && dados.cidades) {
       salvarCidades(dados.cidades);
       return dados.cidades;

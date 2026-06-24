@@ -336,8 +336,15 @@ function marcarVisitado(id, botao) {
     botao.classList.add("btn-success");
   }
 }
-document.addEventListener("DOMContentLoaded", function () {
-  montarCarrossel();
-  montarCards();
-  montarDetalhe();
-});
+
+function initPagina() {
+  if (document.getElementById("carrossel-inner")) montarCarrossel();
+  if (document.getElementById("cards-container")) montarCards();
+  if (document.getElementById("detalhe-container")) montarDetalhe();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initPagina);
+} else {
+  setTimeout(initPagina, 0);
+}

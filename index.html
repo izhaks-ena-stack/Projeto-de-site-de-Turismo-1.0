@@ -157,12 +157,11 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/app.js"></script>
 <script src="assets/js/auth.js"></script>
+<script src="assets/js/app.js"></script>
 <script>
-
-// navbar
 const sessao = Auth.getSessao();
+
 if (sessao) {
   document.getElementById('nav-login').style.display = 'none';
   document.getElementById('nav-perfil').style.display = '';
@@ -291,10 +290,21 @@ function montarMapa() {
 }
 
 // iniciar
-todasCidades = Auth.getCidades();
-montarCarrossel();
-montarCards(todasCidades);
-montarMapa();
+function initIndex() {
+  todasCidades = (typeof Auth !== 'undefined' ? Auth.getCidades() : []) || [];
+  if (!todasCidades.length && typeof dados !== 'undefined' && dados.cidades) {
+    todasCidades = dados.cidades;
+  }
+  montarCarrossel();
+  montarCards(todasCidades);
+  montarMapa();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initIndex);
+} else {
+  initIndex();
+}
 
 </script>
 </body>
